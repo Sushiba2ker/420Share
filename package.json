@@ -1,0 +1,19 @@
+{
+  "name": "420share",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install": "npm install --prefix client && npm install --prefix server",
+    "dev": "concurrently \"npm start --prefix client\" \"npm run dev --prefix server\"",
+    "build": "npm run build --prefix client",
+    "start": "node server/index.js"
+  },
+  "devDependencies": {
+    "@types/d3": "^7.4.3",
+    "@types/webtorrent": "^0.109.8",
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "framer-motion": "^11.11.4"
+  }
+}
