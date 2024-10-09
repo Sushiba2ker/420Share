@@ -66,6 +66,8 @@ const createNodesAndEdges = (
 
 const styles = {
   // background: "#121417",
+  // background trong suốt
+  background: "transparent",
 };
 
 const NetworkGraph: React.FC<NetworkGraphProps> = ({ users }) => {
