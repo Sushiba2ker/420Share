@@ -66,8 +66,6 @@ const createNodesAndEdges = (
 
 const styles = {
   // background: "#121417",
-  // Bo góc
-  //borderRadius: "10px",
 };
 
 const NetworkGraph: React.FC<NetworkGraphProps> = ({ users }) => {
@@ -104,7 +102,7 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({ users }) => {
         connectionMode={ConnectionMode.Loose}
         onInit={onInit}
         fitView
-        colorMode="light"
+        colorMode="dark"
         elementsSelectable={false}
         nodesConnectable={false}
         panOnDrag={false}
