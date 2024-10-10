@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 
 interface SendFileButtonProps {
-  sendFile: (file: File, targetUsernames: string[]) => void;
+  sendFile: (files: File[], targetUsernames: string[]) => void;
   disabled: boolean;
   className?: string;
   peers: string[];
@@ -30,38 +30,36 @@ export default function SendFileButton({
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file && selectedUsers.length > 0) {
-      sendFile(file, selectedUsers);
-      setSelectedUsers([]);
-      setIsDialogOpen(false);
-    }
-  };
-
   const toggleUser = (username: string) => {
-    setSelectedUsers((prev) =>
+    setSelectedUsers(prev =>
       prev.includes(username)
-        ? prev.filter((user) => user !== username)
+        ? prev.filter(u => u !== username)
         : [...prev, username]
     );
   };
 
   const toggleAllUsers = () => {
-    if (selectedUsers.length === peers.length) {
-      setSelectedUsers([]);
-    } else {
-      setSelectedUsers([...peers]);
+    setSelectedUsers(prev =>
+      prev.length === peers.length ? [] : [...peers]
+    );
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      sendFile(Array.from(files), selectedUsers);
+      setIsDialogOpen(false);
     }
   };
 
   return (
     <>
-      <Input
+      <input
         type="file"
         ref={fileInputRef}
         onChange={handleFileChange}
-        className="hidden"
+        style={{ display: "none" }}
+        multiple
       />
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>

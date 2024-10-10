@@ -52,15 +52,23 @@ io.on("connection", (socket) => {
       io.to(roomId).emit("update-users", rooms[roomId].map(user => user.username));
     });
 
-    socket.on("file-link", (fileLink, senderId, targetUsernames) => {
-      if (!rooms[roomId] || rooms[roomId].length === 0) return;
-
+    socket.on("file-link", (fileLink, senderId, targetUsernames, fileNames) => {
+      if (!rooms[roomId] || rooms[roomId].length === 0) {
+        console.error("Phòng không tồn tại hoặc không có người dùng");
+        return;
+      }
+    
       const targetSockets = rooms[roomId]
         .filter((user) => targetUsernames.includes(user.username))
         .map((user) => user.socketId);
-
+    
+      if (targetSockets.length === 0) {
+        console.error("Không tìm thấy người nhận");
+        return;
+      }
+    
       targetSockets.forEach((targetSocketId) => {
-        io.to(targetSocketId).emit("file-link", fileLink, senderId);
+        io.to(targetSocketId).emit("file-link", fileLink, senderId, fileNames);
       });
     });
 

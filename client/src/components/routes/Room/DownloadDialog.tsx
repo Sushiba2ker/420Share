@@ -14,14 +14,16 @@ import { motion } from "framer-motion";
 interface DownloadDialogProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  filename: string;
+  filenames: string[];
+  fileProgress: { [filename: string]: number };
   onClickDownload: () => void;
 }
 
 export default function DownloadDialog({
   open,
   setOpen,
-  filename,
+  filenames,
+  fileProgress,
   onClickDownload,
 }: DownloadDialogProps) {
   return (
@@ -35,7 +37,14 @@ export default function DownloadDialog({
           <AlertDialogHeader>
             <AlertDialogTitle className="text-2xl font-bold mb-2">Tải tập tin xuống</AlertDialogTitle>
             <AlertDialogDescription className="prose prose-invert">
-              Bạn có muốn tải xuống không <span className="font-semibold">{filename}</span>?
+              <ul className="space-y-2">
+                {filenames.map((filename, index) => (
+                  <li key={index} className="flex items-center justify-between">
+                    <span className="font-semibold">{filename}</span>
+                    <span>{fileProgress[filename] || 0}%</span>
+                  </li>
+                ))}
+              </ul>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

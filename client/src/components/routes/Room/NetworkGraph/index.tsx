@@ -14,6 +14,7 @@ import UserNode from "./UserNode";
 
 interface NetworkGraphProps {
   users: string[];
+  isSending: boolean;
 }
 
 const nodeTypes = {
@@ -26,6 +27,7 @@ const edgeTypes = {
 
 const createNodesAndEdges = (
   users: string[],
+  isSending: boolean
 ): { nodes: Node[]; edges: Edge[] } => {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
@@ -40,16 +42,17 @@ const createNodesAndEdges = (
     nodes.push({
       id: `${user}`,
       position: { x, y },
-      data: { label: user },
+      data: { label: user, isSending: isSending && i === 0 },
       type: "custom",
     });
   });
 
-  users.forEach((sourceUser, i) => {
-    users.slice(i + 1).forEach((targetUser) => {
+  if (isSending) {
+    // Khi đang gửi, tạo các cạnh từ node đầu tiên đến các node khác
+    users.slice(1).forEach((targetUser) => {
       edges.push({
-        id: `${sourceUser}-${targetUser}`,
-        source: `${sourceUser}`,
+        id: `${users[0]}-${targetUser}`,
+        source: `${users[0]}`,
         target: `${targetUser}`,
         sourceHandle: `a`,
         targetHandle: `b`,
@@ -59,7 +62,24 @@ const createNodesAndEdges = (
         focusable: false,
       });
     });
-  });
+  } else {
+    // Khi không gửi, tạo các cạnh giữa tất cả các node
+    users.forEach((sourceUser, i) => {
+      users.slice(i + 1).forEach((targetUser) => {
+        edges.push({
+          id: `${sourceUser}-${targetUser}`,
+          source: `${sourceUser}`,
+          target: `${targetUser}`,
+          sourceHandle: `a`,
+          targetHandle: `b`,
+          type: "floating",
+          animated: true,
+          selectable: false,
+          focusable: false,
+        });
+      });
+    });
+  }
 
   return { nodes, edges };
 };
@@ -70,25 +90,31 @@ const styles = {
   borderRadius: "10px",
 };
 
-const NetworkGraph: React.FC<NetworkGraphProps> = ({ users }) => {
+const NetworkGraph: React.FC<NetworkGraphProps> = ({ users, isSending }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
-  const [reactFlowInstance, setReactFlowInstance] =
-    useState<ReactFlowInstance | null>(null);
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
   const onInit = useCallback((rf: ReactFlowInstance) => {
     setReactFlowInstance(rf);
   }, []);
 
   useEffect(() => {
-    const { nodes: newNodes, edges: newEdges } = createNodesAndEdges(users);
-    setNodes(newNodes);
-    setEdges(newEdges);
-  }, [users, setNodes, setEdges]);
+    if (users.length > 0) {
+      const { nodes: newNodes, edges: newEdges } = createNodesAndEdges(users, isSending);
+      setNodes((oldNodes) => {
+        return newNodes.map((node) => {
+          const oldNode = oldNodes.find((n) => n.id === node.id);
+          return oldNode ? { ...node, position: oldNode.position } : node;
+        });
+      });
+      setEdges(newEdges);
+    }
+  }, [users, isSending, setNodes, setEdges]);
 
   useEffect(() => {
-    if (reactFlowInstance) {
-      reactFlowInstance.fitView();
+    if (reactFlowInstance && nodes.length > 0) {
+      reactFlowInstance.fitView({ padding: 0.2, includeHiddenNodes: true });
     }
   }, [reactFlowInstance, nodes]);
 

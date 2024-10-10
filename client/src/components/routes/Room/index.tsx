@@ -25,6 +25,8 @@ export default function Room() {
     downloadData,
     handleDownload,
     peers,
+    fileProgress,
+    isSending,
   } = useFileSharing({ roomId: roomId || "", username });
 
   useEffect(() => {
@@ -35,7 +37,7 @@ export default function Room() {
 
   return (
     <div className="w-full px-8 sm:w-[500px] sm:px-0 m-auto space-y-8">
-      <NetworkGraph users={[username, ...peers]} />
+      <NetworkGraph users={[username, ...peers]} isSending={isSending} />
       <RoomInfo
         connectionStatus={connectionStatus}
         transferSpeed={transferSpeed}
@@ -50,15 +52,16 @@ export default function Room() {
       <div className="absolute bottom-16 right-8 sm:right-10">
         <SendFileButton
           sendFile={sendFile}
-          disabled={peers.length === 0} 
+          disabled={peers.length === 0 || isSending}
           peers={peers}
         />
       </div>
-      {showDownloadDialog && (
+      {showDownloadDialog && downloadData && (
         <DownloadDialog
           open={showDownloadDialog}
           setOpen={setShowDownloadDialog}
-          filename={downloadData?.file.name}
+          filenames={downloadData.files.map(file => file.name)}
+          fileProgress={fileProgress}
           onClickDownload={handleDownload}
         />
       )}
