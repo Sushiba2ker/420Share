@@ -100,7 +100,7 @@ export function useFileSharing({
   
             if (progress >= 100) {
               onFileUploadComplete();
-              setIsSending(false);
+              // Không set isSending về false ở đây
             }
           });
   
@@ -164,6 +164,12 @@ export function useFileSharing({
     [webtorrent, socket, onDownloadingFile, onFileDownloadComplete, setFileProgress, setShowDownloadDialog, setDownloadData]
   );
 
+  const resetSendingState = useCallback(() => {
+    setIsSending(false);
+    setConnectionStatus("");
+    setTransferSpeed("0 kB/s");
+  }, []);
+
   useEffect(() => {
     const SOCKET_URL =
       process.env.NODE_ENV === "production"
@@ -210,6 +216,7 @@ export function useFileSharing({
 
     const handleDoneDownloading = () => {
       onFileUploadComplete();
+      resetSendingState();
     };
 
     const handleUserDisconnected = (username: string) => {
@@ -240,7 +247,7 @@ export function useFileSharing({
       socket.off("done-downloading", handleDoneDownloading);
       socket.off("user-disconnected", handleUserDisconnected);
     };
-  }, [socket, roomId, username, handleFileLink, reset, onFileUploadComplete]);
+  }, [socket, roomId, username, handleFileLink, reset, onFileUploadComplete, resetSendingState]);
 
   return {
     connectionStatus,
