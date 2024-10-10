@@ -104,7 +104,7 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({ users }) => {
         connectionMode={ConnectionMode.Loose}
         onInit={onInit}
         fitView
-        colorMode="dark"
+        colorMode="light"
         elementsSelectable={false}
         nodesConnectable={false}
         panOnDrag={false}

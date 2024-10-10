@@ -33,9 +33,9 @@ export default function DownloadDialog({
           transition={{ duration: 0.5 }}
         >
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-2xl font-bold mb-2">Download File</AlertDialogTitle>
+            <AlertDialogTitle className="text-2xl font-bold mb-2">Tải tập tin xuống</AlertDialogTitle>
             <AlertDialogDescription className="prose prose-invert">
-              Do you want to download <span className="font-semibold">{filename}</span>?
+              Bạn có muốn tải xuống không <span className="font-semibold">{filename}</span>?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -44,7 +44,7 @@ export default function DownloadDialog({
                 onClick={() => setOpen(false)}
                 className="bg-transparent text-white border-white hover:bg-white hover:text-gray-900 transition-colors"
               >
-                Cancel
+                Huỷ
               </Button>
             </AlertDialogCancel>
             <AlertDialogAction asChild>
@@ -52,7 +52,7 @@ export default function DownloadDialog({
                 onClick={onClickDownload}
                 className="bg-blue-500 text-white hover:bg-blue-600 transition-colors group"
               >
-                Download
+                Tải xuống
               </Button>
             </AlertDialogAction>
           </AlertDialogFooter>

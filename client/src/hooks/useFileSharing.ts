@@ -13,7 +13,7 @@ interface UseFileSharingProps {
 interface UseFileSharingReturn {
   connectionStatus: string;
   transferSpeed: string;
-  sendFile: (file: File) => void;
+  sendFile: (file: File, targetUsernames: string[]) => void;
   showDownloadDialog: boolean;
   setShowDownloadDialog: React.Dispatch<React.SetStateAction<boolean>>;
   showUsernameTakenDialog: boolean;
@@ -39,18 +39,13 @@ export function useFileSharing({
   } | null>(null);
   const [peers, setPeers] = useState<string[]>([]);
 
-  const onUserConnected = (username: string) => {
-    setPeers((peers) => Array.from(new Set([...peers, username])));
-    setConnectionStatus("Connection established.");
-  };
-
   const onFileUploadComplete = () => {
-    setConnectionStatus("File sent.");
+    setConnectionStatus("Tệp đã được gửi.");
     setTransferSpeed("0 kB/s");
   };
 
   const onFileDownloadComplete = () => {
-    setConnectionStatus("File received! Generating your download.");
+    setConnectionStatus("Đã nhận tệp! Đang tạo tải xuống.");
     setTransferSpeed("0 kB/s");
   };
 
@@ -59,12 +54,12 @@ export function useFileSharing({
     progress: number,
     uploadSpeed: string,
   ) => {
-    setConnectionStatus(`Sending ${filename}: ${progress}%`);
+    setConnectionStatus(`Đang gửi ${filename}: ${progress}%`);
     setTransferSpeed(uploadSpeed);
   };
 
   const onDownloadingFile = (progress: number, downloadSpeed: string) => {
-    setConnectionStatus(`Receiving file: ${progress}%`);
+    setConnectionStatus(`Đang nhận tệp: ${progress}%`);
     setTransferSpeed(downloadSpeed);
   };
 
@@ -78,14 +73,15 @@ export function useFileSharing({
   }, [torrentBeingSent]);
 
   const sendFile = useCallback(
-    (fileToSend: File) => {
+    (fileToSend: File, targetUsernames: string[]) => {
       if (!fileToSend || !socket) return;
-      setConnectionStatus("Preparing to send.");
+      setConnectionStatus("Đang chuẩn bị để gửi.");
 
       webtorrent.seed(fileToSend, (torrent: WebTorrent.Torrent) => {
         setTorrentBeingSent(torrent);
 
-        socket.emit("file-link", torrent.magnetURI, socket.id);
+        // Emit 'file-link' với danh sách người nhận cụ thể
+        socket.emit("file-link", torrent.magnetURI, socket.id, targetUsernames);
 
         torrent.on("upload", () => {
           const progress = Math.round(
@@ -102,7 +98,7 @@ export function useFileSharing({
         });
 
         torrent.on("error", (error: Error) => {
-          console.error("WebTorrent error:", error);
+          console.error("Lỗi WebTorrent:", error);
         });
       });
     },
@@ -134,7 +130,7 @@ export function useFileSharing({
 
   useEffect(() => {
     webtorrent.on("error", (error: any) => {
-      console.error("WebTorrent client error:", error);
+      console.error("Lỗi WebTorrent client:", error);
     });
   }, [webtorrent]);
 
@@ -146,16 +142,25 @@ export function useFileSharing({
     };
 
     const handleUserConnected = (username: string) => {
-      onUserConnected(username);
-      socket.emit("connection-established", username);
+      setPeers((prevPeers) => {
+        if (prevPeers.includes(username)) return prevPeers;
+        return [...prevPeers, username];
+      });
+      setConnectionStatus("Đã kết nối.");
+    };
+
+    const handleUpdateUsers = (usernames: string[]) => {
+      // Loại bỏ bản thân khỏi danh sách peers
+      const filtered = usernames.filter((u) => u !== username);
+      setPeers(filtered);
     };
 
     const handleConnectionEstablished = (username: string) => {
-      onUserConnected(username);
+      setConnectionStatus("Đã kết nối.");
     };
 
     const handleFileLink = async (fileLink: string, senderId: string) => {
-      setConnectionStatus("Received magnet link.");
+      setConnectionStatus("Đã nhận liên kết magnet.");
 
       const torrentHash = await webtorrent.get(fileLink);
       if (torrentHash) {
@@ -185,14 +190,14 @@ export function useFileSharing({
             setDownloadData({ file });
             setShowDownloadDialog(true);
           } catch (err) {
-            console.error("Error generating download:", err);
+            console.error("Lỗi tạo tải xuống:", err);
           }
 
           socket.emit("done-downloading", senderId);
         });
 
         torrent.on("error", (err: Error) => {
-          console.error("Torrent error:", err);
+          console.error("Lỗi torrent:", err);
         });
       });
     };
@@ -202,11 +207,7 @@ export function useFileSharing({
     };
 
     const handleUserDisconnected = (username: string) => {
-      const index = peers.indexOf(username);
-      if (peers.indexOf(username) > -1) {
-        peers.splice(index, 1);
-        setPeers([...peers]);
-      }
+      setPeers((prevPeers) => prevPeers.filter((peer) => peer !== username));
       reset();
     };
 
@@ -217,6 +218,7 @@ export function useFileSharing({
     socket.on("connect", handleConnect);
     socket.on("username-taken", handleUsernameTaken);
     socket.on("user-connected", handleUserConnected);
+    socket.on("update-users", handleUpdateUsers);
     socket.on("connection-established", handleConnectionEstablished);
     socket.on("file-link", handleFileLink);
     socket.on("done-downloading", handleDoneDownloading);
@@ -226,12 +228,13 @@ export function useFileSharing({
       socket.off("connect", handleConnect);
       socket.off("username-taken", handleUsernameTaken);
       socket.off("user-connected", handleUserConnected);
+      socket.off("update-users", handleUpdateUsers);
       socket.off("connection-established", handleConnectionEstablished);
       socket.off("file-link", handleFileLink);
       socket.off("done-downloading", handleDoneDownloading);
       socket.off("user-disconnected", handleUserDisconnected);
     };
-  }, [socket, roomId, webtorrent, reset, username, peers]);
+  }, [socket, roomId, webtorrent, reset, username]);
 
   return {
     connectionStatus,

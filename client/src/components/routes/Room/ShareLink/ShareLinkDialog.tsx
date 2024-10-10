@@ -33,7 +33,7 @@ export function ShareLinkDialog() {
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold mb-2">Share Room Link</DialogTitle>
             <DialogDescription className="prose prose-invert mb-4 text-sm">
-              Share this link to devices you want to share files with
+              Chia sẻ liên kết này tới các thiết bị mà bạn muốn chia sẻ tệp
             </DialogDescription>
           </DialogHeader>
           <ShareLinkToolbar />

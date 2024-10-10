@@ -50,7 +50,8 @@ export default function Room() {
       <div className="absolute bottom-16 right-8 sm:right-10">
         <SendFileButton
           sendFile={sendFile}
-          disabled={connectionStatus === ""}
+          disabled={peers.length === 0} 
+          peers={peers}
         />
       </div>
       {showDownloadDialog && (

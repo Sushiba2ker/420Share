@@ -45,11 +45,11 @@ export default function UsernameTakenDialog({
           <AlertDialogHeader>
             <AlertDialogTitle className="text-3xl font-bold mb-4 flex items-center">
               <UserX className="h-8 w-8 text-red-400 mr-2" />
-              Username Taken
+              Username đã được sử dụng
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xl text-gray-300">
-              Someone with the username <span className="font-semibold text-blue-400">{username}</span> is already present in the room.
-              Do you want to change your username?
+              Ai đó có username <span className="font-semibold text-blue-400">{username}</span> đã có mặt trong phòng rồi.
+              Bạn có muốn thay đổi username của bạn?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="mt-6">
@@ -57,7 +57,7 @@ export default function UsernameTakenDialog({
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg filter blur-xl opacity-30"></div>
               <div className="relative bg-gray-800 rounded-lg p-4 shadow-xl">
                 <p className="text-gray-300 mb-2">
-                  Changing your username will allow you to join the room with a different identity.
+                Việc thay đổi username sẽ cho phép bạn tham gia phòng với danh tính khác.
                 </p>
               </div>
             </div>
@@ -68,7 +68,7 @@ export default function UsernameTakenDialog({
                 onClick={handleCancel}
                 className="bg-transparent text-white border-white hover:bg-white hover:text-gray-900 transition-colors"
               >
-                Cancel
+                Huỷ
               </Button>
             </AlertDialogCancel>
             <AlertDialogAction asChild>
@@ -76,7 +76,7 @@ export default function UsernameTakenDialog({
                 onClick={handleContinue}
                 className="bg-blue-500 text-white hover:bg-blue-600 transition-colors group"
               >
-                Continue
+                Tiếp tục
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </AlertDialogAction>
