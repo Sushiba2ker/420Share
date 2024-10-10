@@ -15,6 +15,7 @@ import UserNode from "./UserNode";
 interface NetworkGraphProps {
   users: string[];
   isSending: boolean;
+  isReceiving: boolean;
 }
 
 const nodeTypes = {
@@ -27,7 +28,8 @@ const edgeTypes = {
 
 const createNodesAndEdges = (
   users: string[],
-  isSending: boolean
+  isSending: boolean,
+  isReceiving: boolean
 ): { nodes: Node[]; edges: Edge[] } => {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
@@ -42,13 +44,13 @@ const createNodesAndEdges = (
     nodes.push({
       id: `${user}`,
       position: { x, y },
-      data: { label: user, isSending: isSending && i === 0 },
+      data: { label: user, isSending: isSending && i === 0, isReceiving: isReceiving && i !== 0 },
       type: "custom",
     });
   });
 
-  if (isSending) {
-    // Khi đang gửi, tạo các cạnh từ node đầu tiên đến các node khác
+  if (isSending || isReceiving) {
+    // Tạo các cạnh từ node đầu tiên đến các node khác khi đang gửi hoặc nhận
     users.slice(1).forEach((targetUser) => {
       edges.push({
         id: `${users[0]}-${targetUser}`,
@@ -63,7 +65,7 @@ const createNodesAndEdges = (
       });
     });
   } else {
-    // Khi không gửi, tạo các cạnh giữa tất cả các node
+    // Khi không gửi và không nhận, tạo các cạnh giữa tất cả các node
     users.forEach((sourceUser, i) => {
       users.slice(i + 1).forEach((targetUser) => {
         edges.push({
@@ -90,7 +92,7 @@ const styles = {
   borderRadius: "10px",
 };
 
-const NetworkGraph: React.FC<NetworkGraphProps> = ({ users, isSending }) => {
+const NetworkGraph: React.FC<NetworkGraphProps> = ({ users, isSending, isReceiving }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
@@ -101,7 +103,7 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({ users, isSending }) => {
 
   useEffect(() => {
     if (users.length > 0) {
-      const { nodes: newNodes, edges: newEdges } = createNodesAndEdges(users, isSending);
+      const { nodes: newNodes, edges: newEdges } = createNodesAndEdges(users, isSending, isReceiving);
       setNodes((oldNodes) => {
         return newNodes.map((node) => {
           const oldNode = oldNodes.find((n) => n.id === node.id);
@@ -110,7 +112,7 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({ users, isSending }) => {
       });
       setEdges(newEdges);
     }
-  }, [users, isSending, setNodes, setEdges]);
+  }, [users, isSending, isReceiving, setNodes, setEdges]);
 
   useEffect(() => {
     if (reactFlowInstance && nodes.length > 0) {

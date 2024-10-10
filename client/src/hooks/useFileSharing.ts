@@ -22,6 +22,7 @@ interface UseFileSharingReturn {
   peers: string[];
   fileProgress: { [filename: string]: number };
   isSending: boolean;
+  isReceiving: boolean;
 }
 
 export function useFileSharing({
@@ -41,6 +42,7 @@ export function useFileSharing({
   const [peers, setPeers] = useState<string[]>([]);
   const [fileProgress, setFileProgress] = useState<{ [filename: string]: number }>({});
   const [isSending, setIsSending] = useState(false);
+  const [isReceiving, setIsReceiving] = useState(false);
 
   const onFileUploadComplete = useCallback(() => {
     setConnectionStatus("Tệp đã được gửi.");
@@ -132,6 +134,8 @@ export function useFileSharing({
 
   const handleFileLink = useCallback(
     (magnetURI: string, senderId: string, fileNames: string[]) => {
+      setIsReceiving(true);
+      setConnectionStatus("Đang chuẩn bị nhận tệp.");
       webtorrent.add(magnetURI, (torrent: WebTorrent.TorrentFile) => {
         setShowDownloadDialog(true);
         setDownloadData({ files: torrent.files });
@@ -208,6 +212,7 @@ export function useFileSharing({
     const handleUpdateUsers = (usernames: string[]) => {
       const filtered = usernames.filter((u) => u !== username);
       setPeers(filtered);
+      console.log("Updated peers:", filtered);
     };
 
     const handleConnectionEstablished = (username: string) => {
@@ -261,5 +266,6 @@ export function useFileSharing({
     peers,
     fileProgress,
     isSending,
+    isReceiving,
   };
 }

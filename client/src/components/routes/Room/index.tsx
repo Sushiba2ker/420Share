@@ -27,6 +27,7 @@ export default function Room() {
     peers,
     fileProgress,
     isSending,
+    isReceiving,
   } = useFileSharing({ roomId: roomId || "", username });
 
   useEffect(() => {
@@ -35,9 +36,13 @@ export default function Room() {
     }
   }, [navigate, roomId, username]);
 
+  useEffect(() => {
+    console.log("Peers updated:", peers);
+  }, [peers]);
+
   return (
     <div className="w-full px-8 sm:w-[500px] sm:px-0 m-auto space-y-8">
-      <NetworkGraph users={[username, ...peers]} isSending={isSending} />
+      <NetworkGraph users={[username, ...peers]} isSending={isSending} isReceiving={isReceiving} />
       <RoomInfo
         connectionStatus={connectionStatus}
         transferSpeed={transferSpeed}
