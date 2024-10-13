@@ -49,46 +49,28 @@ const createNodesAndEdges = (
     });
   });
 
-  if (isSending || isReceiving) {
-    // Tạo các cạnh từ node đầu tiên đến các node khác khi đang gửi hoặc nhận
-    users.slice(1).forEach((targetUser) => {
+  // Tạo các cạnh giữa tất cả các node
+  users.forEach((sourceUser, i) => {
+    users.slice(i + 1).forEach((targetUser) => {
       edges.push({
-        id: `${users[0]}-${targetUser}`,
-        source: `${users[0]}`,
+        id: `${sourceUser}-${targetUser}`,
+        source: `${sourceUser}`,
         target: `${targetUser}`,
         sourceHandle: `a`,
         targetHandle: `b`,
         type: "floating",
-        animated: true,
+        animated: isSending || isReceiving, // Chỉ animate khi đang gửi hoặc nhận
         selectable: false,
         focusable: false,
       });
     });
-  } else {
-    // Khi không gửi và không nhận, tạo các cạnh giữa tất cả các node
-    users.forEach((sourceUser, i) => {
-      users.slice(i + 1).forEach((targetUser) => {
-        edges.push({
-          id: `${sourceUser}-${targetUser}`,
-          source: `${sourceUser}`,
-          target: `${targetUser}`,
-          sourceHandle: `a`,
-          targetHandle: `b`,
-          type: "floating",
-          animated: true,
-          selectable: false,
-          focusable: false,
-        });
-      });
-    });
-  }
+  });
 
   return { nodes, edges };
 };
 
 const styles = {
   background: "#121417",
-  // bo góc 10px
   borderRadius: "10px",
 };
 
