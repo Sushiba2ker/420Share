@@ -53,6 +53,7 @@ export function useFileSharing({
   const onFileDownloadComplete = useCallback(() => {
     setConnectionStatus("Đã nhận tệp! Đang tạo tải xuống.");
     setTransferSpeed("0 kB/s");
+    setIsReceiving(false);
   }, []);
 
   const onUploadingFile = useCallback((
@@ -77,6 +78,7 @@ export function useFileSharing({
     setConnectionStatus("");
     setTransferSpeed("0 kB/s");
     setIsSending(false);
+    setIsReceiving(false);
   }, [torrentBeingSent]);
 
   const sendFile = useCallback(
@@ -102,7 +104,6 @@ export function useFileSharing({
   
             if (progress >= 100) {
               onFileUploadComplete();
-              // Không set isSending về false ở đây
             }
           });
   
@@ -129,6 +130,7 @@ export function useFileSharing({
         download(blob, file.name);
       }
       setShowDownloadDialog(false);
+      setIsReceiving(false);
     }
   }, [downloadData]);
 
