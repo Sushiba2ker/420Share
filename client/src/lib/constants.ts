@@ -11,9 +11,9 @@ const ICE_SERVERS = [
     ? { url: "stun:stun.l.google.com:19302" }
     : { urls: "stun:stun1.l.google.com:19302" },
   {
-    urls: "turn:global.relay.metered.ca:80",
-    username: "bd82f25dcaa5a0ee819c1561",
-    credential: "1hSvjsZqjDsguoJH",
+    urls: "turn:relay1.expressturn.com:3478",
+    username: "efSIBKT5O2HI8UWT9S",
+    credential: "wrMwtRjxCK5NRGqo",
   },
 ];
 
